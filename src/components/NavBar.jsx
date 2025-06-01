@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import CircleButton from "./CircleButton";
 import { Menu, X } from "lucide-react";
 import clsx from "clsx";
 import Logo from "./Logo";
@@ -9,24 +8,8 @@ import ProfileAvatar from "./ProfileAvatar";
 
 export default function Navbar({ data = [], user = null }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  console.log("User in Navbar:", user);
-
-  useEffect(() => {
-    setMounted(true);
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  if (!mounted) {
-    return null; // Prevent hydration mismatch
-  }
 
   console.log("Navbar rendering with user:", user);
 
@@ -34,9 +17,7 @@ export default function Navbar({ data = [], user = null }) {
     <nav
       className={clsx(
         "fixed top-0 left-0 right-0 z-[100] transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.1)]",
-        isScrolled
-          ? "bg-white/90 backdrop-blur-md"
-          : "bg-white"
+        "bg-white/90 backdrop-blur-md"
       )}
     >
       <div className="py-4">
@@ -86,13 +67,6 @@ export default function Navbar({ data = [], user = null }) {
 
                   {isProfileOpen && (
                     <div className="absolute bg-white right-0 mt-2 w-48 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 py-1">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2.5 text-base text-charcoal hover:bg-cream"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        Your Profile
-                      </Link>
                       <Link
                         href="/settings"
                         className="block px-4 py-2.5 text-base text-charcoal hover:bg-cream"
@@ -179,13 +153,6 @@ export default function Navbar({ data = [], user = null }) {
                     </span>
                   </div>
                   <div className="space-y-2">
-                    <Link
-                      href="/profile"
-                      className="block w-full px-4 py-2.5 text-base text-charcoal hover:bg-cream rounded-lg"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Your Profile
-                    </Link>
                     <Link
                       href="/settings"
                       className="block w-full px-4 py-2.5 text-base text-charcoal hover:bg-cream rounded-lg"
