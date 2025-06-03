@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import clsx from "clsx";
 
-export default function OutfitCarousel({ category, onSelect, user }) {
+export default function OutfitCarousel({ category, onSelect, user, isSaving }) {
   const [items, setItems] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,8 +40,9 @@ export default function OutfitCarousel({ category, onSelect, user }) {
     setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
   };
 
-  const handleSelect = () => {
-    if (items[currentIndex]) {
+  const handleSelect = (e) => {
+    e.preventDefault(); // Prevent any default form submission
+    if (items[currentIndex] && !isSaving) {
       onSelect(items[currentIndex]);
     }
   };
@@ -90,15 +91,17 @@ export default function OutfitCarousel({ category, onSelect, user }) {
         {/* Navigation Arrows */}
         <button
           onClick={handlePrevious}
-          className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-charcoal shadow-lg transition-colors"
+          className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-charcoal shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Previous item"
+          disabled={isSaving}
         >
           <ChevronLeft size={24} />
         </button>
         <button
           onClick={handleNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-charcoal shadow-lg transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-charcoal shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Next item"
+          disabled={isSaving}
         >
           <ChevronRight size={24} />
         </button>
@@ -118,9 +121,16 @@ export default function OutfitCarousel({ category, onSelect, user }) {
       {/* Select Button */}
       <button
         onClick={handleSelect}
-        className="mt-4 w-full bg-primary text-white rounded-lg px-4 py-2.5 font-medium hover:bg-primary/90 transition-colors"
+        type="button" // Explicitly set button type
+        className={clsx(
+          "mt-4 w-full bg-primary text-white rounded-lg px-4 py-2.5 font-medium",
+          "hover:bg-primary/90 transition-colors",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          isSaving && "bg-primary/70"
+        )}
+        disabled={isSaving}
       >
-        Select This Item
+        {isSaving ? "Saving..." : "Select This Item"}
       </button>
     </div>
   );

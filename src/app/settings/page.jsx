@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Shirt, Copy, Check, ChevronDown } from "lucide-react";
+import { User, Shirt, Copy, Check, ChevronDown, Settings, Bell, Lock, LogOut } from "lucide-react";
 import CircleButton from "@/components/CircleButton";
 import clsx from "clsx";
+import ClosetManagementPopup from "@/components/ClosetManagementPopup";
 
 // Mock user data for development - this will be replaced with actual auth
 const mockUser = {
@@ -18,181 +19,10 @@ const mockUser = {
   },
   outfits: {
     hats: [],
-    tops: [
-      {
-        id: "t1",
-        name: "White Gray Design",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/White Gray Design - Calvin Klein.png"
-      },
-      {
-        id: "t2",
-        name: "Black",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Black - Calvin Klein.png"
-      },
-      {
-        id: "t3",
-        name: "Blue",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Blue - Calvin Klein.png"
-      },
-      {
-        id: "t4",
-        name: "Gray",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Gray - Calvin Klein.png"
-      },
-      {
-        id: "t5",
-        name: "Navy",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Navy - Calvin Klein.png"
-      },
-      {
-        id: "t6",
-        name: "White",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/White - Calvin Klein.png"
-      },
-      {
-        id: "t7",
-        name: "White Gray Design",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/White Gray Design - Calvin Klein.png"
-      },
-      {
-        id: "t8",
-        name: "Black",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Black - Calvin Klein.png"
-      },
-      {
-        id: "t9",
-        name: "Blue",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Blue - Calvin Klein.png"
-      },
-      {
-        id: "t10",
-        name: "Gray",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Gray - Calvin Klein.png"
-      },
-      {
-        id: "t11",
-        name: "Navy",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/tops/Navy - Calvin Klein.png"
-      }
-    ],
-    bottoms: [
-      {
-        id: "b1",
-        name: "Navy",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/bottoms/Navy - Calvin Klein.png"
-      },
-      {
-        id: "b2",
-        name: "Black",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/bottoms/Black - Calvin Klein.png"
-      },
-      {
-        id: "b3",
-        name: "Blue",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/bottoms/Blue - Calvin Klein.png"
-      },
-      {
-        id: "b4",
-        name: "Gray",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/bottoms/Gray - Calvin Klein.png"
-      },
-      {
-        id: "b5",
-        name: "Navy",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/bottoms/Navy - Calvin Klein.png"
-      },
-      {
-        id: "b6",
-        name: "Black",
-        brand: "Calvin Klein",
-        img: "/outfits/aadar100@gmail.com/bottoms/Black - Calvin Klein.png"
-      }
-    ],
+    tops: [],
+    bottoms: [],
     shoes: [],
-    watches: [
-      {
-        id: "w1",
-        name: "Semi Mechanical",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Semi Mechanical - Fossil.png"
-      },
-      {
-        id: "w2",
-        name: "Black",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Black - Fossil.png"
-      },
-      {
-        id: "w3",
-        name: "Blue",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Blue - Fossil.png"
-      },
-      {
-        id: "w4",
-        name: "Gray",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Gray - Fossil.png"
-      },
-      {
-        id: "w5",
-        name: "Navy",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Navy - Fossil.png"
-      },
-      {
-        id: "w6",
-        name: "Black",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Black - Fossil.png"
-      },
-      {
-        id: "w7",
-        name: "Blue",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Blue - Fossil.png"
-      },
-      {
-        id: "w8",
-        name: "Gray",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Gray - Fossil.png"
-      },
-      {
-        id: "w9",
-        name: "Navy",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Navy - Fossil.png"
-      },
-      {
-        id: "w10",
-        name: "Black",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Black - Fossil.png"
-      },
-      {
-        id: "w11",
-        name: "Blue",
-        brand: "Fossil",
-        img: "/outfits/aadar100@gmail.com/watches/Blue - Fossil.png"
-      }
-    ],
+    watches: [],
     necklaces: [],
     earrings: []
   }
@@ -208,7 +38,7 @@ const CLOSET_CATEGORIES = [
   { id: "earrings", label: "Earrings", icon: "💍" }
 ];
 
-export default function Settings() {
+export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [formData, setFormData] = useState({
     firstName: mockUser.firstName,
@@ -218,6 +48,8 @@ export default function Settings() {
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
+  const [isClosetPopupOpen, setIsClosetPopupOpen] = useState(false);
+  const [selectedClosetCategory, setSelectedClosetCategory] = useState(null);
 
   useEffect(() => {
     setMounted(true);
@@ -262,7 +94,16 @@ export default function Settings() {
   };
 
   const getItemCount = (category) => {
-    return mockUser.outfits[category]?.length || 0;
+    // Handle undefined or null outfits
+    if (!mockUser?.outfits) {
+      return 0;
+    }
+    // Handle null category or non-array category
+    const categoryItems = mockUser.outfits[category];
+    if (categoryItems === null || !Array.isArray(categoryItems)) {
+      return 0;
+    }
+    return categoryItems.length;
   };
 
   const menuItems = [
@@ -296,8 +137,8 @@ export default function Settings() {
                   text="Manage Items"
                   className="w-full"
                   onClick={() => {
-                    // TODO: Implement manage items
-                    console.log("Manage items clicked for:", category.id);
+                    setSelectedClosetCategory(category.id);
+                    setIsClosetPopupOpen(true);
                   }}
                 />
               </div>
@@ -445,6 +286,11 @@ export default function Settings() {
     }
   };
 
+  const handleUpdateCloset = async (updatedCloset) => {
+    // TODO: Replace with actual API call
+    console.log("Updating closet:", updatedCloset);
+  };
+
   return (
     <main className="min-h-screen bg-cream pt-32 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -480,6 +326,18 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Closet Management Popup */}
+      <ClosetManagementPopup
+        isOpen={isClosetPopupOpen}
+        onClose={() => {
+          setIsClosetPopupOpen(false);
+          setSelectedClosetCategory(null);
+        }}
+        user={mockUser}
+        onUpdateCloset={handleUpdateCloset}
+        initialCategory={selectedClosetCategory}
+      />
     </main>
   );
 }

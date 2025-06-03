@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Plus, Shirt } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Plus, Shirt, X } from "lucide-react";
 import clsx from "clsx";
-import OutfitPopup from "./OutfitPopup";
 import DateSelectorPopup from "./DateSelectorPopup";
 import MonthYearSelectorPopup from "./MonthYearSelectorPopup";
+import OutfitPreviewPopup from "./OutfitPreviewPopup";
+import OutfitSelectionPopup from "./OutfitSelectionPopup";
+import { Dialog } from "@headlessui/react";
 
 export default function OutfitCalendar({
   partnerName = "Partner",
@@ -102,9 +104,26 @@ export default function OutfitCalendar({
     });
   };
 
-  const handleAddOutfit = () => {
-    // TODO: Implement add outfit functionality
-    console.log("Add outfit for", selectedDate);
+  const handleAddOutfit = async (outfitData) => {
+    try {
+      // Create the outfit object with the selected items
+      const outfit = {
+        date: selectedDate,
+        ...outfitData
+      };
+
+      // TODO: Replace with actual API call
+      console.log("Saving outfit:", outfit);
+
+      // For now, just update the local state
+      if (!user.outfits) {
+        user.outfits = {};
+      }
+      user.outfits[selectedDate] = outfit;
+    } catch (error) {
+      console.error("Error saving outfit:", error);
+      // TODO: Show error message to user
+    }
   };
 
   const handleEditOutfit = () => {
@@ -118,9 +137,16 @@ export default function OutfitCalendar({
 
   const getOutfitsForView = () => {
     if (view === "your-outfits") {
-      return user?.outfits;
+      // Show outfits chosen for the user (stored in partner's outfits)
+      return user?.partner?.outfits;
     }
-    return user?.partner?.outfits;
+    // Show outfits chosen for partner (stored in user's outfits)
+    return user?.outfits;
+  };
+
+  const getOutfitForDate = (date) => {
+    const outfits = getOutfitsForView();
+    return outfits?.[date] || null;
   };
 
   const renderCalendarDays = () => {
@@ -426,20 +452,67 @@ export default function OutfitCalendar({
 
       {viewMode === "day" && renderDayView()}
 
-      {/* Outfit Popup - show in both month and day views */}
-      <OutfitPopup
-        isOpen={!!selectedDate}
-        onClose={closePopup}
-        date={selectedDate}
-        outfit={selectedDate ? (getOutfitsForView() || {})[selectedDate] : null}
-        view={view}
-        partnerName={partnerName}
-        onAddOutfit={handleAddOutfit}
-        onEditOutfit={handleEditOutfit}
-        user={user}
-        partner={user.partner}
-        isPreviewOnly={view === "your-outfits"}
-      />
+      {/* Show appropriate popup based on view and data availability */}
+      {selectedDate && (
+        view === "your-outfits" ? (
+          getOutfitForDate(selectedDate) ? (
+            <OutfitPreviewPopup
+              isOpen={true}
+              onClose={closePopup}
+              date={selectedDate}
+              outfit={getOutfitForDate(selectedDate)}
+              partner={user.partner}
+              partnerName={partnerName}
+            />
+          ) : (
+            <Dialog
+              open={true}
+              onClose={closePopup}
+              className="relative z-50"
+            >
+              {/* Backdrop */}
+              <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+              {/* Full-screen container */}
+              <div className="fixed inset-0 flex items-center justify-center p-2">
+                <Dialog.Panel className="w-full max-w-lg bg-white rounded-lg shadow-lg">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-3 border-b border-charcoal/10">
+                    <Dialog.Title className="text-base font-medium text-charcoal">
+                      {formatDateForDisplay(selectedDate)}
+                    </Dialog.Title>
+                    <button
+                      onClick={closePopup}
+                      className="p-1 hover:bg-cream rounded-lg transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 text-center">
+                    <div className="text-4xl mb-3">😔</div>
+                    <p className="text-charcoal/70">
+                      No outfit chosen for you on this day
+                    </p>
+                  </div>
+                </Dialog.Panel>
+              </div>
+            </Dialog>
+          )
+        ) : (
+          // Always show selection popup for partner's outfits
+          <OutfitSelectionPopup
+            isOpen={true}
+            onClose={closePopup}
+            date={selectedDate}
+            partner={user.partner}
+            partnerName={partnerName}
+            onAddOutfit={handleAddOutfit}
+            user={user}
+          />
+        )
+      )}
 
       {/* Date Selector Popup */}
       <DateSelectorPopup
