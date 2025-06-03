@@ -1,6 +1,7 @@
 import OutfitCalendar from "./OutfitCalendar";
 import { useState } from "react";
 import clsx from "clsx";
+import PartnerCodeManager from "./PartnerCodeManager";
 
 export default function Dashboard({ user }) {
   const [activeView, setActiveView] = useState("your-outfits"); // or "partner-outfits"
@@ -12,15 +13,35 @@ export default function Dashboard({ user }) {
           <h1 className="text-5xl font-semibold text-charcoal">
             Welcome back, {user.firstName}!
           </h1>
-          <p className="mt-4 text-xl text-charcoal/70">
-            Manage your virtual closet and coordinate outfits with your partner.
-          </p>
+          {user.partner ? (
+            <p className="mt-4 text-xl text-charcoal/70">
+              Manage your virtual closet and coordinate outfits with {user.partner.firstName}.
+            </p>
+          ) : (
+            <p className="mt-4 text-xl text-charcoal/70">
+              Connect with your partner to start coordinating outfits.
+            </p>
+          )}
         </div>
 
-        {/* Calendar Section */}
-        <div>
-          <OutfitCalendar view={activeView} partnerName={user.partner.firstName} />
-        </div>
+        {/* Show either the calendar or partner code manager */}
+        {user.partner ? (
+          <div>
+            <OutfitCalendar
+              view={activeView}
+              partnerName={user.partner.firstName}
+              user={user}
+            />
+          </div>
+        ) : (
+          <PartnerCodeManager
+            user={user}
+            onPartnerConnect={(code) => {
+              // TODO: Implement partner connection logic
+              console.log("Connecting with partner code:", code);
+            }}
+          />
+        )}
       </div>
     </main>
   );

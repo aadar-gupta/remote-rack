@@ -1,50 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Plus, Shirt } from "lucide-react";
 import clsx from "clsx";
 import OutfitPopup from "./OutfitPopup";
 import DateSelectorPopup from "./DateSelectorPopup";
 import MonthYearSelectorPopup from "./MonthYearSelectorPopup";
 
-// Mock data for outfit suggestions
-const mockOutfits = {
-  "2024-03-20": {
-    top: "White Button-Up Shirt",
-    bottom: "Blue Jeans",
-    shoes: "White Sneakers",
-    accessories: "Silver Watch",
-    notes: "Casual office day"
-  },
-  "2024-03-21": {
-    top: "Black T-Shirt",
-    bottom: "Black Jeans",
-    shoes: "Black Boots",
-    accessories: "Leather Bracelet",
-    notes: "Evening date night"
-  }
-};
-
-// Mock partner's outfits
-const mockPartnerOutfits = {
-  "2024-03-20": {
-    top: "Blue Blouse",
-    bottom: "Black Skirt",
-    shoes: "Black Heels",
-    accessories: "Pearl Necklace",
-    notes: "Office meeting"
-  },
-  "2024-03-22": {
-    top: "Red Dress",
-    bottom: "N/A",
-    shoes: "Red Heels",
-    accessories: "Gold Earrings",
-    notes: "Date night"
-  }
-};
-
 export default function OutfitCalendar({
-  partnerName = "Partner"
+  partnerName = "Partner",
+  user
 }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -73,6 +38,13 @@ export default function OutfitCalendar({
     // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Add console logs for debugging
+  useEffect(() => {
+    console.log('OutfitCalendar - Current view:', view);
+    console.log('OutfitCalendar - User data:', user);
+    console.log('OutfitCalendar - Partner data:', user?.partner);
+  }, [view, user]);
 
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
@@ -104,7 +76,7 @@ export default function OutfitCalendar({
     setCurrentMonth(today);
     // Optionally select today's date
     const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    if (mockOutfits[dateString]) {
+    if (user?.outfits[dateString]) {
       setSelectedDate(dateString);
     }
   };
@@ -145,7 +117,10 @@ export default function OutfitCalendar({
   };
 
   const getOutfitsForView = () => {
-    return view === "your-outfits" ? mockOutfits : mockPartnerOutfits;
+    if (view === "your-outfits") {
+      return user?.outfits;
+    }
+    return user?.partner?.outfits;
   };
 
   const renderCalendarDays = () => {
@@ -153,7 +128,7 @@ export default function OutfitCalendar({
     const today = new Date();
     const currentYear = currentMonth.getFullYear();
     const currentMonthNum = currentMonth.getMonth();
-    const outfits = getOutfitsForView();
+    const outfits = getOutfitsForView() || {}; // Provide empty object as fallback
 
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -169,7 +144,7 @@ export default function OutfitCalendar({
       const isToday = today.getDate() === day &&
                      today.getMonth() === currentMonthNum &&
                      today.getFullYear() === currentYear;
-      const hasOutfit = outfits[dateString];
+      const hasOutfit = outfits && outfits[dateString];
 
       days.push(
         <button
@@ -182,21 +157,20 @@ export default function OutfitCalendar({
             hasOutfit && !isToday && "border-secondary bg-secondary/5"
           )}
         >
-          <span className={clsx(
-            "text-sm font-medium",
-            isToday && "text-primary font-semibold",
-            hasOutfit && !isToday && "text-secondary"
-          )}>
-            {day}
-          </span>
-          {hasOutfit && (
-            <div className={clsx(
-              "mt-1 text-xs truncate",
-              isToday ? "text-primary/80" : "text-charcoal/70"
+          <div className="flex items-center justify-between">
+            <span className={clsx(
+              "text-sm font-medium",
+              isToday && "text-primary font-semibold",
+              hasOutfit && !isToday && "text-secondary"
             )}>
-              {outfits[dateString].top}
-            </div>
-          )}
+              {day}
+            </span>
+            {hasOutfit && (
+              <Shirt size={16} className={clsx(
+                isToday ? "text-primary" : "text-secondary"
+              )} />
+            )}
+          </div>
         </button>
       );
     }
@@ -221,49 +195,47 @@ export default function OutfitCalendar({
   };
 
   const renderDayView = () => {
-    const outfits = getOutfitsForView();
+    const outfits = getOutfitsForView() || {}; // Provide empty object as fallback
     const dateString = currentDay.toISOString().split('T')[0];
-    const hasOutfit = outfits[dateString];
+    const hasOutfit = outfits && outfits[dateString];
     const isToday = isCurrentDay();
 
     return (
       <div className="space-y-8">
         {/* Date selector and Today button */}
         <div className="min-h-[88px] flex flex-col justify-center">
-          <div className="relative flex items-center">
-            <div className="w-full">
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  onClick={() => {
-                    const prevDay = new Date(currentDay);
-                    prevDay.setDate(currentDay.getDate() - 1);
-                    setCurrentDay(prevDay);
-                  }}
-                  className="p-2 hover:bg-cream rounded-lg transition-colors"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={() => setIsDateSelectorOpen(true)}
-                  className="text-lg font-medium text-charcoal whitespace-normal hover:text-primary transition-colors"
-                >
-                  {currentDay.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </button>
-                <button
-                  onClick={() => {
-                    const nextDay = new Date(currentDay);
-                    nextDay.setDate(currentDay.getDate() + 1);
-                    setCurrentDay(nextDay);
-                  }}
-                  className="p-2 hover:bg-cream rounded-lg transition-colors"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
+          <div className="relative flex items-center justify-center">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const prevDay = new Date(currentDay);
+                  prevDay.setDate(currentDay.getDate() - 1);
+                  setCurrentDay(prevDay);
+                }}
+                className="p-2 hover:bg-cream rounded-lg transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                onClick={() => setIsDateSelectorOpen(true)}
+                className="text-lg font-medium text-charcoal whitespace-normal hover:text-primary transition-colors"
+              >
+                {currentDay.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </button>
+              <button
+                onClick={() => {
+                  const nextDay = new Date(currentDay);
+                  nextDay.setDate(currentDay.getDate() + 1);
+                  setCurrentDay(nextDay);
+                }}
+                className="p-2 hover:bg-cream rounded-lg transition-colors"
+              >
+                <ChevronRight size={20} />
+              </button>
             </div>
           </div>
           {!isToday && (
@@ -284,32 +256,33 @@ export default function OutfitCalendar({
           <div className="bg-cream/50 rounded-lg p-6 space-y-4">
             <div>
               <h4 className="text-sm font-medium text-charcoal/70">Top</h4>
-              <p className="text-lg text-charcoal">{outfits[dateString].top}</p>
+              <p className="text-lg text-charcoal">{outfits[dateString].top.name}</p>
             </div>
             <div>
               <h4 className="text-sm font-medium text-charcoal/70">Bottom</h4>
-              <p className="text-lg text-charcoal">{outfits[dateString].bottom}</p>
+              <p className="text-lg text-charcoal">{outfits[dateString].bottom.name}</p>
             </div>
             <div>
-              <h4 className="text-sm font-medium text-charcoal/70">Shoes</h4>
-              <p className="text-lg text-charcoal">{outfits[dateString].shoes}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-charcoal/70">Accessories</h4>
-              <p className="text-lg text-charcoal">{outfits[dateString].accessories}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-charcoal/70">Notes</h4>
-              <p className="text-lg text-charcoal">{outfits[dateString].notes}</p>
+              <h4 className="text-sm font-medium text-charcoal/70">Watches</h4>
+              <p className="text-lg text-charcoal">{outfits[dateString].watches.name}</p>
             </div>
           </div>
         ) : (
           <div className="text-center py-12 bg-cream/30 rounded-lg">
-            <p className="text-charcoal/70">
-              {view === "your-outfits"
-                ? "No outfit chosen for this day"
-                : `No outfit chosen for ${partnerName} on this day`}
-            </p>
+            {view === "your-outfits" ? (
+              <p className="text-charcoal/70">No outfit chosen for this day</p>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-charcoal/70">No outfit chosen for {partnerName} on this day</p>
+                <button
+                  onClick={() => setSelectedDate(dateString)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  <Plus size={16} />
+                  <span className="text-sm font-medium">Choose Outfit</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -453,19 +426,20 @@ export default function OutfitCalendar({
 
       {viewMode === "day" && renderDayView()}
 
-      {/* Outfit Popup - only show in month view */}
-      {viewMode === "month" && (
-        <OutfitPopup
-          isOpen={!!selectedDate}
-          onClose={closePopup}
-          date={selectedDate}
-          outfit={selectedDate ? getOutfitsForView()[selectedDate] : null}
-          view={view}
-          partnerName={partnerName}
-          onAddOutfit={handleAddOutfit}
-          onEditOutfit={handleEditOutfit}
-        />
-      )}
+      {/* Outfit Popup - show in both month and day views */}
+      <OutfitPopup
+        isOpen={!!selectedDate}
+        onClose={closePopup}
+        date={selectedDate}
+        outfit={selectedDate ? (getOutfitsForView() || {})[selectedDate] : null}
+        view={view}
+        partnerName={partnerName}
+        onAddOutfit={handleAddOutfit}
+        onEditOutfit={handleEditOutfit}
+        user={user}
+        partner={user.partner}
+        isPreviewOnly={view === "your-outfits"}
+      />
 
       {/* Date Selector Popup */}
       <DateSelectorPopup

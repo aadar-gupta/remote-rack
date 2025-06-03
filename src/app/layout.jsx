@@ -4,11 +4,16 @@ import Navbar from "@/components/NavBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// Mock user data for development
-let mockUser = {
-  firstName: "Aadar",
-  lastName: "Gupta",
-  email: "aadar.gupta@example.com",
+// Mock user data for development - this will be replaced with actual auth
+const mockUser = {
+  firstName: "Anjanie",
+  lastName: "Sukhnandan",
+  email: "anjanie015@gmail.com",
+  partner: {
+    firstName: "Aadar",
+    lastName: "Gupta",
+    email: "aadar100@gmail.com",
+  },
 };
 
 //mockUser = null;
